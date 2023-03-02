@@ -503,7 +503,7 @@ def PowerLaw(xData, yData, yErrors = [], xlabel = 'x-axis', ylabel = 'y-axis', x
             return y
         
         # Find the minimum y value.  Will scale yData by the minimum value of y so that the nonlinear fit doesn't fail or require good initial guesses at the parameter values.
-        ymin = np.min(yData)
+        ymax = np.max(yData)
 
         # If the yErrors list is empty, do an unweighted fit.  Otherwise, do a weighted fit.
         print('')
@@ -512,18 +512,18 @@ def PowerLaw(xData, yData, yErrors = [], xlabel = 'x-axis', ylabel = 'y-axis', x
         else:
             display(Markdown('$y = A\,(x/1$ ' + xUnits + '$)^N\,+ \,C$'))
         if len(yErrors) == 0: 
-            a_fit, cov = curve_fit(PowerFunc, xData, yData/ymin)
+            a_fit, cov = curve_fit(PowerFunc, xData, yData/ymax)
             display(Markdown('This is an **UNWEIGHTED** fit.'))
         else:
-            a_fit, cov = curve_fit(PowerFunc, xData, yData/ymin, sigma = yErrors/ymin)
+            a_fit, cov = curve_fit(PowerFunc, xData, yData/ymax, sigma = yErrors/ymax)
             display(Markdown('This is a **WEIGHTED** fit.'))
 
-        Coeff = a_fit[0]*ymin
-        errCoeff = np.sqrt(np.diag(cov))[0]*ymin
+        Coeff = a_fit[0]*ymax
+        errCoeff = np.sqrt(np.diag(cov))[0]*ymax
         Power = a_fit[1]
         errPower = np.sqrt(np.diag(cov))[1]
-        Offset = a_fit[2]*ymin
-        errOffset = np.sqrt(np.diag(cov))[2]*ymin
+        Offset = a_fit[2]*ymax
+        errOffset = np.sqrt(np.diag(cov))[2]*ymax
 
         # Use the 'uncertainties' package to format the best-fit parameters and the corresponding uncertainties.
         A = uncertainties.ufloat(Coeff, errCoeff)
