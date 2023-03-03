@@ -637,14 +637,14 @@ def Charging(xData, yData, yErrors = [], xlabel = 'x-axis', ylabel = 'y-axis', x
         display(Markdown('$y = A(1 - e^{-x/ \\tau})$'))
     
         if len(yErrors) == 0: 
-            a_fit, cov = curve_fit(ChargingFcn, np.array(xData)/max(xData), yData)
+            a_fit, cov = curve_fit(ChargingFcn, np.array(xData)/max(xData), np.array(yData)/max(yData))
             display(Markdown('This is an **UNWEIGHTED** fit.'))
         else:
-            a_fit, cov = curve_fit(ChargingFcn, np.array(xData)/max(xData), yData, sigma = yErrors)
+            a_fit, cov = curve_fit(ChargingFcn, np.array(xData)/max(xData), np.array(yData)/max(yData), sigma = yErrors)
             display(Markdown('This is a **WEIGHTED** fit.'))
 
-        A_fit = a_fit[0]
-        errA = np.sqrt(np.diag(cov))[0]
+        A_fit = a_fit[0]*max(yData)
+        errA = np.sqrt(np.diag(cov))[0]*max(yData)
         tau_fit = a_fit[1]*max(xData)
         errTau = np.sqrt(np.diag(cov))[1]*max(xData)
         
