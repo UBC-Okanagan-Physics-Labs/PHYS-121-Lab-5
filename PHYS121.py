@@ -582,6 +582,11 @@ def PowerLaw(xData, yData, yErrors = [], xlabel = 'x-axis', ylabel = 'y-axis', x
         xx = np.arange(xmin, xmax, (xmax-xmin)/5000)
         plt.plot(xx, Coeff*xx**Power + Offset, 'k-')
 
+        ax = plt.gca()
+        ax.relim()
+        ax.autoscale_view()
+        ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
+
         # Show the final plot.
         plt.show()
     return Coeff, Power, Offset, errCoeff, errPower, errOffset, fig
@@ -2139,3 +2144,50 @@ def save_time():
 
     # Write for grading/auditing
     (cwd / "save_time.txt").write_text(text, encoding="utf-8")
+
+
+###############################################################################
+# Average like columns in a dataframe (Lab #4: RH)                            #                                
+# - modified 20260228                                                         #
+############################################################################### 
+def average(df):
+    # -------------------------------------------------
+    # 1. Identify column names
+    # -------------------------------------------------
+    # Assuming:
+    #   Column 0 = something else
+    #   Column 1 = Diameter
+    #   Column 2 = RH
+    # If not, print(df.columns) and adjust accordingly.
+
+    diameter_col = df.columns[1]
+    rh_col = df.columns[2]
+
+    # -------------------------------------------------
+    # 2. Group by diameter
+    # -------------------------------------------------
+    grouped = df.groupby(diameter_col)
+
+    # -------------------------------------------------
+    # 3. Compute statistics
+    # -------------------------------------------------
+    summary = grouped[rh_col].agg(
+        RH='mean',
+        std_RH='std',
+        count='count'
+    ).reset_index()
+
+    # -------------------------------------------------
+    # 4. Compute standard error
+    # -------------------------------------------------
+    summary['RH_uncertainty'] = summary['std_RH'] / np.sqrt(summary['count'])
+
+    # -------------------------------------------------
+    # 5. Keep only requested columns
+    # -------------------------------------------------
+    result = summary[[diameter_col, 'RH', 'RH_uncertainty', 'count']]
+
+    # Optional: sort by diameter
+    result = result.sort_values(by=diameter_col)
+
+    return result
